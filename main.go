@@ -15,6 +15,9 @@ func main() {
 
 	r.GET("/products/:id", getProductDetail)
 
+	// Create product
+	r.POST("/products", createProduct)
+
 	_ = r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
@@ -50,11 +53,11 @@ func getProducts(c *gin.Context) {
 	end := start + pagingData.Size
 
 	if start > productLen {
-		start = productLen - 1
+		start = productLen
 	}
 
 	if end > productLen {
-		end = productLen - 1
+		end = productLen
 	}
 
 	products = model.Products[start:end]
@@ -74,4 +77,27 @@ func getProductDetail(c *gin.Context) {
 		}
 	}
 	c.JSON(http.StatusNotFound, model.NewAppResponse(false, "Không tìm thấy sản phẩm", nil))
+}
+
+func createProduct(c *gin.Context) {
+	var product model.CreateProductReq
+	if err := c.ShouldBindJSON(&product); err != nil {
+		c.JSON(http.StatusBadRequest, model.NewAppResponse(false, "Dữ liệu không hợp lệ", nil))
+		return
+	}
+
+	newId := 1
+	if len(model.Products) > 0 {
+		newId = model.Products[len(model.Products)-1].ID + 1
+	}
+	newProduct := model.Product{
+		ID:       newId,
+		Name:     product.Name,
+		Price:    product.Price,
+		Quantity: product.Quantity,
+	}
+
+	model.Products = append(model.Products, newProduct)
+
+	c.JSON(http.StatusCreated, model.NewAppResponse(true, "Tạo sản phẩm thành công", newProduct))
 }
