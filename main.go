@@ -9,10 +9,14 @@ import (
 
 func main() {
 	r := gin.Default()
+
+	// Login
 	r.POST("/login", login)
 
+	// Get products
 	r.GET("/products", getProducts)
 
+	// Get product detail
 	r.GET("/products/:id", getProductDetail)
 
 	// Create product
@@ -20,6 +24,9 @@ func main() {
 
 	// Delete product
 	r.DELETE("/products/:id", deleteProduct)
+
+	// Update product
+	r.PUT("/products/:id", updateProduct)
 
 	_ = r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
@@ -116,6 +123,31 @@ func deleteProduct(c *gin.Context) {
 		if id == product.ID {
 			model.Products = append(model.Products[:i], model.Products[i+1:]...)
 			c.JSON(http.StatusOK, model.NewAppResponse(true, "Xóa sản phẩm thành công", nil))
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, model.NewAppResponse(false, "Không tìm thấy sản phẩm", nil))
+}
+
+func updateProduct(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.NewAppResponse(false, "Dữ liệu không hợp lệ", nil))
+		return
+	}
+
+	var product model.CreateProductReq
+	if err := c.ShouldBindJSON(&product); err != nil {
+		c.JSON(http.StatusBadRequest, model.NewAppResponse(false, "Dữ liệu không hợp lệ", nil))
+		return
+	}
+
+	for i, p := range model.Products {
+		if id == p.ID {
+			model.Products[i].Name = product.Name
+			model.Products[i].Price = product.Price
+			model.Products[i].Quantity = product.Quantity
+			c.JSON(http.StatusOK, model.NewAppResponse(true, "Cập nhật sản phẩm thành công", model.Products[i]))
 			return
 		}
 	}
