@@ -18,6 +18,9 @@ func main() {
 	// Create product
 	r.POST("/products", createProduct)
 
+	// Delete product
+	r.DELETE("/products/:id", deleteProduct)
+
 	_ = r.Run() // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
 
@@ -100,4 +103,21 @@ func createProduct(c *gin.Context) {
 	model.Products = append(model.Products, newProduct)
 
 	c.JSON(http.StatusCreated, model.NewAppResponse(true, "Tạo sản phẩm thành công", newProduct))
+}
+
+func deleteProduct(c *gin.Context) {
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		c.JSON(http.StatusBadRequest, model.NewAppResponse(false, "Dữ liệu không hợp lệ", nil))
+		return
+	}
+
+	for i, product := range model.Products {
+		if id == product.ID {
+			model.Products = append(model.Products[:i], model.Products[i+1:]...)
+			c.JSON(http.StatusOK, model.NewAppResponse(true, "Xóa sản phẩm thành công", nil))
+			return
+		}
+	}
+	c.JSON(http.StatusNotFound, model.NewAppResponse(false, "Không tìm thấy sản phẩm", nil))
 }
