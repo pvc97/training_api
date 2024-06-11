@@ -147,6 +147,7 @@ func updateProduct(c *gin.Context) {
 			model.Products[i].Name = product.Name
 			model.Products[i].Price = product.Price
 			model.Products[i].Quantity = product.Quantity
+			model.Products[i].Cover = product.Cover
 			c.JSON(http.StatusOK, model.NewAppResponse(true, "Cập nhật sản phẩm thành công", model.Products[i]))
 			return
 		}
