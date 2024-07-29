@@ -9,7 +9,11 @@ type Product struct {
 }
 
 // Products - Mock list product
-var Products = []Product{
+// Copy from InitProducts
+var Products = append([]Product{}, InitProducts...)
+
+// InitProducts - Mock list product
+var InitProducts = []Product{
 	{ID: 1, Name: "Iphone 12", Price: 10000000, Quantity: 10, Cover: "https://cdn.tgdd.vn/Products/Images/42/326016/vivo-y28-vang-thumb-600x600.jpg"},
 	{ID: 2, Name: "Samsung Galaxy S21", Price: 12000000, Quantity: 5, Cover: "https://cdn.tgdd.vn/Products/Images/42/305658/iphone-15-pro-max-blue-thumbnew-600x600.jpg"},
 	{ID: 3, Name: "Xiaomi Redmi Note 10", Price: 5000000, Quantity: 20, Cover: "https://cdn.tgdd.vn/Products/Images/42/249948/samsung-galaxy-s23-ultra-green-thumbnew-600x600.jpg"},

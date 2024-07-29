@@ -8,6 +8,8 @@ import (
 	"training_api/model"
 )
 
+const fakeToken = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiIxMjM0NTY3ODkwIiwibmFtZSI6IkpvaG4gRG9lIiwiaWF0IjoxNTE2MjM5MDIyfQ.SflKxwRJSMeKKF2QT4fwpMeJf36POk6yJV_adQssw5c"
+
 func CORSMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		c.Writer.Header().Set("Access-Control-Allow-Origin", "*")
@@ -24,6 +26,18 @@ func CORSMiddleware() gin.HandlerFunc {
 	}
 }
 
+func AuthMiddleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		token := c.GetHeader("Authorization")
+		if token != fakeToken {
+			c.JSON(http.StatusUnauthorized, model.NewAppResponse(false, "Token không hợp lệ", nil))
+			c.Abort()
+			return
+		}
+		c.Next()
+	}
+}
+
 func main() {
 	r := gin.Default()
 
@@ -34,9 +48,10 @@ func main() {
 	}
 
 	// Ping
-	r.GET("/ping", func(c *gin.Context) {
+	r.GET("/reset", func(c *gin.Context) {
+		model.Products = append([]model.Product{}, model.InitProducts...)
 		c.JSON(http.StatusOK, gin.H{
-			"message": "pong",
+			"message": "Reset data success",
 		})
 	})
 
@@ -44,19 +59,19 @@ func main() {
 	r.POST("/login", login)
 
 	// Get products
-	r.GET("/products", getProducts)
+	r.GET("/products", AuthMiddleware(), getProducts)
 
 	// Get product detail
-	r.GET("/products/:id", getProductDetail)
+	r.GET("/products/:id", AuthMiddleware(), getProductDetail)
 
 	// Create product
-	r.POST("/products", createProduct)
+	r.POST("/products", AuthMiddleware(), createProduct)
 
 	// Delete product
-	r.DELETE("/products/:id", deleteProduct)
+	r.DELETE("/products/:id", AuthMiddleware(), deleteProduct)
 
 	// Update product
-	r.PUT("/products/:id", updateProduct)
+	r.PUT("/products/:id", AuthMiddleware(), updateProduct)
 
 	_ = r.Run(":" + port) // listen and serve on 0.0.0.0:8080 (for windows "localhost:8080")
 }
@@ -70,7 +85,7 @@ func login(c *gin.Context) {
 	if loginRequest.TaxCode == 1111111111 &&
 		loginRequest.UserName == "demo" &&
 		loginRequest.Password == "123456" {
-		c.JSON(http.StatusOK, model.NewAppResponse(true, "Đăng nhập thành công", nil))
+		c.JSON(http.StatusOK, model.NewLoginSuccessResponse(true, "Đăng nhập thành công", fakeToken))
 		return
 	} else {
 		c.JSON(http.StatusUnauthorized, model.NewAppResponse(false, "Tên đăng nhập hoặc mật khẩu không đúng", nil))
