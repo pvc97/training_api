@@ -150,6 +150,7 @@ func createProduct(c *gin.Context) {
 		Name:     product.Name,
 		Price:    product.Price,
 		Quantity: product.Quantity,
+		Cover:    product.Cover,
 	}
 
 	// Add new product to the beginning of the list
