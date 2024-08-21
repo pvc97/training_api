@@ -13,3 +13,7 @@ func NewLoginSuccessResponse(success bool, message, token string) *LoginSuccessR
 		Token:   token,
 	}
 }
+
+type LoginSuccessResponse2 struct {
+	Token string `json:"token"`
+}

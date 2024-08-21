@@ -58,6 +58,9 @@ func main() {
 	// Login
 	r.POST("/login", login)
 
+	// Login2
+	r.POST("/login2", login2)
+
 	// Get products
 	r.GET("/products", AuthMiddleware(), getProducts)
 
@@ -86,6 +89,25 @@ func login(c *gin.Context) {
 		loginRequest.UserName == "demo" &&
 		loginRequest.Password == "123456" {
 		c.JSON(http.StatusOK, model.NewLoginSuccessResponse(true, "Đăng nhập thành công", fakeToken))
+		return
+	} else {
+		c.JSON(http.StatusUnauthorized, model.NewAppResponse(false, "Tên đăng nhập hoặc mật khẩu không đúng", nil))
+		return
+	}
+}
+
+func login2(c *gin.Context) {
+	var loginRequest model.LoginRequest
+	if err := c.ShouldBindJSON(&loginRequest); err != nil {
+		c.JSON(http.StatusBadRequest, model.NewAppResponse(false, "Dữ liệu không hợp lệ", nil))
+		return
+	}
+	if loginRequest.TaxCode == 1111111111 &&
+		loginRequest.UserName == "demo" &&
+		loginRequest.Password == "123456" {
+		c.JSON(http.StatusOK, model.NewAppResponse(true, "Đăng nhập thành công", model.LoginSuccessResponse2{
+			Token: fakeToken,
+		}))
 		return
 	} else {
 		c.JSON(http.StatusUnauthorized, model.NewAppResponse(false, "Tên đăng nhập hoặc mật khẩu không đúng", nil))
