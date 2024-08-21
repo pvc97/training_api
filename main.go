@@ -172,9 +172,11 @@ func createProduct(c *gin.Context) {
 		Name:     product.Name,
 		Price:    product.Price,
 		Quantity: product.Quantity,
+		Cover:    product.Cover,
 	}
 
-	model.Products = append(model.Products, newProduct)
+	// Add new product to the beginning of the list
+	model.Products = append([]model.Product{newProduct}, model.Products...)
 
 	c.JSON(http.StatusCreated, model.NewAppResponse(true, "Tạo sản phẩm thành công", newProduct))
 }
