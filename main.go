@@ -163,10 +163,14 @@ func createProduct(c *gin.Context) {
 		return
 	}
 
-	newId := 1
-	if len(model.Products) > 0 {
-		newId = model.Products[len(model.Products)-1].ID + 1
+	largestProductId := 0
+	for _, product := range model.Products {
+		if product.ID >= largestProductId {
+			largestProductId = product.ID
+		}
 	}
+
+	newId := largestProductId + 1
 	newProduct := model.Product{
 		ID:       newId,
 		Name:     product.Name,
